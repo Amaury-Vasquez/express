@@ -1,4 +1,4 @@
-import { Collection, MongoClient, MongoClientOptions, ObjectId } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 
 import { config } from '../config';
 import { User } from '../interfaces';
@@ -19,11 +19,9 @@ export class MongoLib {
   }
 
   async connect() {
-    console.log(!MongoLib.connection);
     try {
       if (!MongoLib.connection) {
         MongoLib.connection = await this.client.connect();
-        console.log(!MongoLib.connection);
         console.log('Connected to db...');
       }
     } catch (err) {
@@ -32,47 +30,68 @@ export class MongoLib {
     return MongoLib.connection;
   }
 
+  async create(collection: string, query: User) {
+    try {
+      const db = await this.getDB();
+      return await db.collection(collection).insertOne(query);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async createMany(collection: string, query: User[]) {
+    try {
+      const db = await this.getDB();
+      return await (await this.getCollection(db, collection)).insertMany(query);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async delete(collection: string, username: string) {
+    try {
+      const db = await this.getDB();
+      return await db.collection(collection).deleteOne({ username });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async deleteMany(collection: string, query: User[]) {
+    try {
+      const db = await this.getDB();
+      return await db.collection(collection).deleteMany(query);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async get(collection: string, username: string) {
+    try {
+      const db = await this.getDB();
+      return await db.collection(collection).findOne({ username });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async getAll(collection: string) {
     try {
-      const db = (await this.connect()).db(this.dbName);
+      const db = await this.getDB();
       return await db.collection(collection).find({}).toArray();
     } catch (err) {
       console.error(err);
     }
   }
 
-  // get(collection, id) {
-  //   return this.connect().then((db) => {
-  //     return db.collection(collection).findOne({ _id: ObjectId(id) });
-  //   });
-  // }
-
-  async create(collection: string, data: User) {
-    try {
-      const db = (await this.connect()).db(this.dbName);
-      return await db.collection(collection).insertOne(data);
-    } catch (err) {
-      console.error(err);
-    }
+  private async getCollection(db: Db, collection: string) {
+    return await db.collection(collection);
   }
 
-  // update(collection, id, data) {
-  //   return this.connect()
-  //     .then((db) => {
-  //       return db
-  //         .collection(collection)
-  //         .updateOne({ _id: ObjectId(id) }, { $set: data }, { upsert: true });
-  //     })
-  //     .then((result) => result.upsertedId || id);
-  // }
+  private async getDB() {
+    return (await this.connect()).db(this.dbName);
+  }
 
-  // delete(collection, id) {
-  //   return this.connect()
-  //     .then((db) => {
-  //       return db.collection(collection).deleteOne({ _id: ObjectId(id) });
-  //     })
-  //     .then(() => id);
-  // }
   async close() {
     try {
       if (this.client) await this.client.close();

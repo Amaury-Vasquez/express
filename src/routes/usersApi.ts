@@ -1,7 +1,6 @@
 import express, { Express } from 'express';
 import { User } from '../interfaces';
 
-import { students } from '../mocks/MOCK_DATA';
 import { UsersService } from '../services/users';
 
 export const usersApi = (app: Express) => {
@@ -9,6 +8,19 @@ export const usersApi = (app: Express) => {
   app.use('/api/users', router);
 
   const userService = new UsersService();
+
+  router.delete('/', async (req, res, next) => {
+    try {
+      const username = req.body;
+      const data = await userService.deleteUser(username);
+      res.status(200).json({
+        data,
+        message: 'user deleted',
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
   router.get('/', async (req, res, next) => {
     try {
@@ -22,19 +34,14 @@ export const usersApi = (app: Express) => {
     }
   });
 
-  router.get('/:studentId', async (req, res, next) => {
-    try {
-      const data = await Promise.resolve(
-        students[parseInt(req.params.studentId)]
-      );
-
-      res.status(200).json({
-        data,
-        message: 'student list',
-      });
-    } catch (err) {
-      next(err);
-    }
+  router.get('/:username', async (req, res, next) => {
+    const username = req.params.username;
+    console.log(username);
+    const data = await userService.get(username);
+    res.status(200).json({
+      data,
+      message: `user: ${username}`,
+    });
   });
 
   router.post('/', async (req, res, next) => {
