@@ -19,6 +19,11 @@ export class UsersService {
     return await this.mongoDB.createMany(this.collection, data);
   }
 
+  async deleteMany(data: User[]) {
+    const willDelete = await this.mongoDB.deleteMany(this.collection, data);
+    return willDelete;
+  }
+
   async deleteUser(username: string) {
     const user = await this.mongoDB.delete(this.collection, username);
     return user || {};

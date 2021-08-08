@@ -11,14 +11,17 @@ export const usersApi = (app: Express) => {
 
   router.delete('/', async (req, res, next) => {
     try {
-      const username = req.body;
-      const data = await userService.deleteUser(username);
+      const willDelete = req.body;
+      const data =
+        willDelete instanceof Array
+          ? await userService.deleteMany(willDelete)
+          : await userService.deleteUser(willDelete);
       res.status(200).json({
         data,
         message: 'user deleted',
       });
     } catch (err) {
-      console.error(err);
+      next(err);
     }
   });
 
@@ -46,11 +49,14 @@ export const usersApi = (app: Express) => {
 
   router.post('/', async (req, res, next) => {
     try {
-      const data: User = req.body;
-      const createdStudent = await userService.createUser(data);
+      const data = req.body;
+      const createdStudent =
+        data instanceof Array
+          ? await userService.createMany(data)
+          : await userService.createUser(data);
       res.status(201).json({
         data: createdStudent,
-        message: 'user created',
+        message: 'created succesfully',
       });
     } catch (err) {
       next(err);

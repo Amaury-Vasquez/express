@@ -1,7 +1,9 @@
+import { ObjectId } from 'mongodb';
+
 export interface User {
+  _id: ObjectId;
   email: string;
   firstName: string;
-  // id: number;
   lastName: string;
   username: string;
   // schedule: [];
