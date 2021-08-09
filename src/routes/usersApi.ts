@@ -1,6 +1,4 @@
 import express, { Express } from 'express';
-import { ObjectId } from 'mongodb';
-import { User } from '../interfaces';
 
 import { UsersService } from '../services/users';
 
@@ -10,13 +8,10 @@ export const usersApi = (app: Express) => {
 
   const userService = new UsersService();
 
-  router.delete('/', async (req, res, next) => {
+  router.delete('/:id', async (req, res, next) => {
     try {
-      const willDelete = req.body;
-      const data =
-        willDelete instanceof Array
-          ? await userService.deleteMany(willDelete)
-          : await userService.deleteUser(willDelete);
+      const { id } = req.params;
+      const data = await userService.deleteUser(id);
       res.status(200).json({
         data,
         message: 'user deleted',
@@ -41,7 +36,6 @@ export const usersApi = (app: Express) => {
   router.get('/:username', async (req, res, next) => {
     try {
       const username = req.params.username;
-      console.log(username);
       const data = await userService.get(username);
       res.status(200).json({
         data,

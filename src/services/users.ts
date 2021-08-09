@@ -26,8 +26,8 @@ export class UsersService {
   }
 
   async deleteUser(username: string) {
-    const user = await this.mongoDB.delete(this.collection, username);
-    return user || {};
+    const deleted = await this.mongoDB.delete(this.collection, username);
+    return deleted || {};
   }
 
   async get(username: string) {
