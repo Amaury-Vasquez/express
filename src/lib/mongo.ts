@@ -92,6 +92,16 @@ export class MongoLib {
     return (await this.connect()).db(this.dbName);
   }
 
+  async update(collection: string, value: User, username: string) {
+    try {
+      const db = await this.getDB();
+      return await db
+        .collection(collection)
+        .updateOne({ username }, value, { upsert: true });
+    } catch (err) {
+      console.error(err);
+    }
+  }
   async close() {
     try {
       if (this.client) await this.client.close();

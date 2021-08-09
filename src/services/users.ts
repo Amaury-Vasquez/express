@@ -39,4 +39,13 @@ export class UsersService {
     const users = await this.mongoDB.getAll(this.collection);
     return users || [];
   }
+
+  async update(update: User, username: string) {
+    const updated = await this.mongoDB.update(
+      this.collection,
+      update,
+      username
+    );
+    return updated || {};
+  }
 }

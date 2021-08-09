@@ -1,5 +1,6 @@
 import express, { Express } from 'express';
 
+import { User } from '../interfaces';
 import { UsersService } from '../services/users';
 
 export const usersApi = (app: Express) => {
@@ -35,7 +36,7 @@ export const usersApi = (app: Express) => {
 
   router.get('/:username', async (req, res, next) => {
     try {
-      const username = req.params.username;
+      const { username } = req.params;
       const data = await userService.get(username);
       res.status(200).json({
         data,
@@ -46,6 +47,19 @@ export const usersApi = (app: Express) => {
     }
   });
 
+  router.put('/:username', async (req, res, next) => {
+    try {
+      const { username } = req.params;
+      const user: User = req.body;
+      const updated = await userService.update(user, username);
+      res.status(201).json({
+        data: updated,
+        message: 'user updated',
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
   router.post('/', async (req, res, next) => {
     try {
       const data = req.body;
